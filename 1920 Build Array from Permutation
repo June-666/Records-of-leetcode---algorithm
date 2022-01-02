@@ -1,0 +1,56 @@
+Question is from Leetcode.
+My accepted solution:
+
+class Solution {
+    public int[] buildArray(int[] nums) {
+        int[] result = new int[nums.length];
+        for (int i = 0; i < nums.length; i++) {
+            result[i] = nums[nums[i]];
+        }
+        return result;
+    }
+}
+
+This question is easy to pass but one requirement is difficult to satisfy: O(1) space. My solution uses O(n) space. 
+
+------------
+
+The below solution is most voted, with O(1) space.
+
+@chiranjeeb2  from Leetcode.  The author's explanation is in the code.
+
+    public int[] buildArray(int[] nums) {
+        int n = nums.length;
+        
+        for(int i=0; i<n; i++){
+            // this is done to keep both old and new value together. 
+            // going by the example of [5,0,1,2,3,4]
+            // after this nums[0] will be 5 + 6*(4%6) = 5 + 24 = 29;
+            // now for next index calulation we might need the original value of num[0] which can be obtain by num[0]%6 = 29%6 = 5;
+            // if we want to get just he new value of num[0], we can get it by num[0]/6 = 29/6 = 4
+            nums[i] = nums[i] + n*(nums[nums[i]] % n);
+        }
+        
+        for(int i=0; i<n; i++){
+            nums[i] = nums[i]/n;
+        }
+        
+        return nums;
+    }
+
+The space complexity should be O(1), so all the values to be returned should be saved in the input array. 
+However, there is a situation that the needed value is changed.
+For example, the input array is [0,2,1], if we directly assign the value nums[nums[i]] to nums[i]:
+step1: nums[0] = nums[nums[0]] = nums[0] = 0, nums = [0,2,1];
+step2: nums[1] = nums[nums[1]] = nums[2] = 1, nums = [0,1,1];
+step3: nums[2] = nums[nums[2]] = nums[1] = 1, nums = [0,1,1];
+So far, we see that the value 2 is lost, which means the result cannot be correct, which should be [0,1,2]. 
+
+Therefore, we need a formula to preserve the original value of the input array.
+Let's take the formula in line 31 as f1, and the formula in line 35 as f2.
+The result of f2 is actually (nums[i] + n*(nums[nums[i]] % n))/n = nums[i]/n + nums[nums[i]] % n = nums[nums[i]] % n -------- Each element is smaller than the array length n.
+It is ideal if the value of nums[nums[i]] is not lost during the first loop. 
+
+However, if the value is lost, it was changed like the righthand side of f1, so the original value is preserved as num[i] in the formula.
+Then, the original value can be found by "%n", which can clear the "n*(nums[nums[i]] % n)".
+Finally, all the values are correctly assigned to the array nums, with O(1) space.
