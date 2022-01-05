@@ -1,0 +1,62 @@
+Question is from Leetcode.
+
+My accepted solution:
+
+class SubrectangleQueries {
+
+    private final int[][] r;
+
+    public SubrectangleQueries(int[][] rectangle) {
+        r = rectangle;
+    }
+
+    public void updateSubrectangle(int row1, int col1, int row2, int col2, int newValue) {
+        for (int i = row1; i <= row2; i++) {
+            for (int j = col1; j <= col2; j++) {
+                r[i][j] = newValue;
+            }
+        }
+    }
+
+    public int getValue(int row, int col) {
+        return r[row][col];
+    }
+}
+
+This is an easy question if time complexity is not required. 
+
+-------------------
+
+Another solution with O(1) complexity for updateSubrectangle()
+
+@rock   from Leetcode
+
+    private final int[][] r;
+    private final LinkedList<int[]> histories = new LinkedList<>();
+    
+    public SubrectangleQueries(int[][] rectangle) { // deep copy the input array - credit to @_xavier_
+        r = new int[rectangle.length][0];
+        int i = 0;
+        for (int[] row : rectangle) {
+            r[i++] = row.clone();
+        }
+    }
+    
+    public void updateSubrectangle(int row1, int col1, int row2, int col2, int newValue) {
+        histories.push(new int[]{row1, col1, row2, col2, newValue});
+    }
+    
+    public int getValue(int row, int col) {
+        for (int[] his: histories) {
+            if (his[0] <= row && row <= his[2] && his[1] <= col && col <= his[3]) {
+                return his[4];
+            }
+        }
+        return r[row][col];
+    }
+    
+This solution does not change the original rectangle. It stores all updates in a list, then compare the updated interval with the provided position in getValue() to find the correct value.
+
+It is creative to cut down the time complexity of updateSubrectangle() to O(1). Nevertheless, the time complexity of getValue() is increased to O(histories.size()).
+
+Therefore, the solution is suitable if the rectangle is not frequently updated, or the size of histories is less than that of the rectangle.
